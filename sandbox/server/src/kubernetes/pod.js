@@ -36,4 +36,17 @@ export const createPod = async (sandboxId) => {
             ]
         }
     }
+
+    try {
+        const response = await k8sCoreV1Api.createNamespacedPod({
+            namespace: 'default', 
+            body: podManifest
+        });
+
+        console.log(`Pod created: ${response.body.metadata.name}`);
+        return response
+
+    } catch (err) {
+        console.error('Error creating pod:', err);
+    }
 }
