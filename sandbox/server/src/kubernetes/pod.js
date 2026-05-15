@@ -1,0 +1,39 @@
+import {k8sCoreV1Api} from "./config.js"
+
+export const createPod = async (sandboxId) => {
+
+    const podManifest = {
+        metadata: {
+            name: `sandbox-pod-${sandboxId}`,
+            labels: {
+                app: 'sandbox-app',
+                sandboxId: sandboxId
+            }
+        },
+        spec: {
+            containers: [
+                {
+                    image: "template",
+                    imagePullPolicy: "IfNotPresent",
+                    name: "sandbox-container",
+                    ports: [
+                        {
+                            containerPort: 5173,
+                            name: "http"
+                        }
+                    ],
+                    resources: {
+                        limits: {
+                            cpu: "500m",
+                            memory: "512Mi"
+                        },
+                        requests: {
+                            cpu: "250m",
+                            memory: "256Mi"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
