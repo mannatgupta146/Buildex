@@ -1,19 +1,17 @@
-import { k8sCoreV1Api } from "./config";
+import { k8sCoreV1Api } from "./config.js";
 
 export const createService = async (sandboxId) => {
-
     const serviceManifest = {
         metadata: {
             name: `sandbox-service-${sandboxId}`,
             labels: {
-                app: "sandbox",
+                app: 'sandbox',
                 sandboxId: sandboxId
             }
         },
-
         spec: {
             selector: {
-                app: "sandbox",
+                app: 'sandbox',
                 sandboxId: sandboxId
             },
             ports: [
@@ -28,16 +26,10 @@ export const createService = async (sandboxId) => {
         }
     }
 
-    try {
-        const response = await k8sCoreV1Api.createNamespacedService({
-            namespace: 'default',
-            body: serviceManifest
-        });
+    const response = await k8sCoreV1Api.createNamespacedService({
+        namespace: 'default',
+        body: serviceManifest
+    })
 
-        console.log(`Service created: ${response.body.metadata.name}`);
-        return response
-
-    } catch (err) {
-        console.error('Error creating service:', err);
-    }
+    return response;
 }

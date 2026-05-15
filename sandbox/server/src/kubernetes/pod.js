@@ -1,12 +1,13 @@
-import {k8sCoreV1Api} from "./config.js"
+import { k8sCoreV1Api } from "./config.js";
 
-export const createPod = async (sandboxId) => {
+
+export async function createPod(sandboxId) {
 
     const podManifest = {
         metadata: {
             name: `sandbox-pod-${sandboxId}`,
             labels: {
-                app: 'sandbox-app',
+                app: 'sandbox',
                 sandboxId: sandboxId
             }
         },
@@ -15,38 +16,21 @@ export const createPod = async (sandboxId) => {
                 {
                     image: "template",
                     imagePullPolicy: "IfNotPresent",
-                    name: "sandbox-container",
-                    ports: [
-                        {
-                            containerPort: 5173,
-                            name: "http"
-                        }
-                    ],
+                    name: 'sandbox-container',
+                    ports: [ { containerPort: 5173, name: "http" } ],
                     resources: {
-                        limits: {
-                            cpu: "500m",
-                            memory: "512Mi"
-                        },
-                        requests: {
-                            cpu: "250m",
-                            memory: "256Mi"
-                        }
+                        limits: { cpu: "500m", memory: "1Gi" },
+                        requests: { cpu: "250m", memory: "500Mi" }
                     }
                 }
             ]
         }
     }
 
-    try {
-        const response = await k8sCoreV1Api.createNamespacedPod({
-            namespace: 'default', 
-            body: podManifest
-        });
+    const response = await k8sCoreV1Api.createNamespacedPod({
+        namespace: 'default',
+        body: podManifest
+    })
 
-        console.log(`Pod created: ${response.body.metadata.name}`);
-        return response
-
-    } catch (err) {
-        console.error('Error creating pod:', err);
-    }
+    return response;
 }

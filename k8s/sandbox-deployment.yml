@@ -14,6 +14,7 @@ spec:
       labels:
         app: sandbox
     spec:
+      serviceAccountName: resource-manager
       containers:
         - image: sandbox:latest
           imagePullPolicy: IfNotPresent
@@ -27,7 +28,7 @@ spec:
               memory: "200Mi"
           livenessProbe:
             httpGet:
-              path: api/sandbox/health
+              path: /api/sandbox/health
               port: 3000
             initialDelaySeconds: 90
             timeoutSeconds: 10
