@@ -1,5 +1,8 @@
 import express from "express"
 import morgan from "morgan"
+import { createPod } from "./kubernetes/pod"
+import { createService } from "./kubernetes/service"
+import { v7 as uuid } from "uuid"
 
 const app = express()
 
@@ -11,6 +14,32 @@ app.get("/api/sandbox/health", (req, res) => {
   res.status(200).json({
     message: "Sandbox API is healthy!",
   })
+})
+
+app.post("/api/sandbox/start", async (req, res) => {
+
+  const sandboxId = uuid()
+
+  try {
+    await Promise.all([
+      createPod(sandboxId),
+      createService(sandboxId)
+    ])
+
+    res.status(201).json({
+      message: "Sandbox environment created successfully!",
+      sandboxId: sandboxId,
+      previewUrl: `http://${sandboxId}.preview.localhost`
+    })
+  }
+
+    catch (err) {
+      console.error('Error starting sandbox:', err);
+      res.status(500).json({
+        message: "Failed to create sandbox environment",
+        error: err.message
+      })
+    }
 })
 
 export default app
