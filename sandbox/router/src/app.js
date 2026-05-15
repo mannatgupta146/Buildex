@@ -6,6 +6,20 @@ const app = express();
 
 app.use(morgan('combined'));
 
+app.get('/api/status/healthz', (req, res) => {
+    res.status(200).json({
+        message: 'Sandbox Router is healthy',
+        status: 'ok'
+    });
+});
+
+app.get('/api/status/readyz', (req, res) => {
+    res.status(200).json({
+        message: 'Sandbox Router is ready',
+        status: 'ok'
+    });
+});
+
 app.use((req, res, next) => {
     const host = req.headers.host;
     const sandboxId = host.split('.')[0];
