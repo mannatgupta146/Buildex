@@ -1,30 +1,35 @@
-import express from 'express';
-import morgan from 'morgan';
-import fs from 'fs';
+import express from "express"
+import morgan from "morgan"
+import fs from "fs"
 
-const app = express();
+const app = express()
 
-app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(morgan("dev"))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-const WORKSPACE_DIR = '/workspace';
+const WORKSPACE_DIR = "/workspace"
 
-app.get('/api/agent/health', (req, res) => {
-    res.status(200).json({
-        message: 'Sandbox agent API is healthy',
-        status: 'ok'
-    });
-});
-
-app.get('/list-files', async (req, res) => {
-    const elements = await fs.promises.readdir(WORKSPACE_DIR);
-    res.status(200).json({ 
-        message: 'Elements in working directory',
-        elements
-    });
-
-
+app.get("/api/agent/health", (req, res) => {
+  res.status(200).json({
+    message: "Sandbox agent API is healthy",
+    status: "ok",
+  })
 })
 
-export default app;
+app.get("/", (req, res) => {
+  res.status(200).json({
+    message: "Sandbox agent is reachable",
+    status: "ok",
+  })
+})
+
+app.get("/list-files", async (req, res) => {
+  const elements = await fs.promises.readdir(WORKSPACE_DIR)
+  res.status(200).json({
+    message: "Elements in working directory",
+    elements,
+  })
+})
+
+export default app

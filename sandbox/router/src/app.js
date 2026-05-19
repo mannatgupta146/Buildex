@@ -57,7 +57,7 @@ app.use((req, res, next) => {
     if(host.split('.')[ 1 ] === 'preview') {
         return getProxy(sandboxId)(req, res, next);
     } else if(host.split('.')[ 1 ] === 'agent') {
-        return getProxy(sandboxId)(req, res, next);
+        return getAgentProxy(sandboxId)(req, res, next);
     } else {
         return res.status(400).json({ message: 'Invalid host header' });
     }    
