@@ -27,6 +27,18 @@ app.get("/", (req, res) => {
 
 /**
  * @route GET /list-files
+ * @description List all files in the workspace directory and its subdirectories and return the list as a JSON response.
+ * The response should contain an array of file paths relative to the workspace directory, exclude directories like node_modules and .git.
+ * The file paths should use forward slashes (/) as separators, regardless of the operating system.
+ *
+ * - eg.
+ * {
+ *   files: [
+ *     "file1.txt",
+ *     "src/file2.txt",
+ *     "src/subdir/file3.txt"
+ *   ]
+ * }
  */
 app.get("/list-files", async (req, res) => {
   const ignoredDirs = new Set(["node_modules", ".git", "dist"])
@@ -79,6 +91,11 @@ app.get("/list-files", async (req, res) => {
 
 /**
  * @route GET /read-files
+ * @description Read the contents of files requested in the query parameter "files"
+ * and return the contents as a JSON response.
+ *
+ * - eg.
+ * GET /read-files?files=file1.txt,file2.txt
  */
 app.get("/read-files", async (req, res) => {
   const files = req.query.files
@@ -100,13 +117,13 @@ app.get("/read-files", async (req, res) => {
         const content = await fs.promises.readFile(filePath, "utf-8")
 
         return {
-          [filePath]: content,
+          [filePath.replace(WORKSPACE_DIR, "")]: content,
         }
       } catch (err) {
         console.error(`Error reading file ${filePath}:`, err)
 
         return {
-          [filePath]: `Error reading file: ${err.message}`,
+          [filePath.replace(WORKSPACE_DIR, "")]: `Error reading file: ${err.message}`,
         }
       }
     })
@@ -120,6 +137,23 @@ app.get("/read-files", async (req, res) => {
 
 /**
  * @route PATCH /update-files
+ * @description Update the contents of files provided in the request body.
+ * The request body should contain a property "updates"
+ * which is an array of objects.
+ *
+ * Each object should contain:
+ * - file: relative file path
+ * - content: updated file content
+ *
+ * - eg.
+ * {
+ *   "updates": [
+ *     {
+ *       "file": "src/index.js",
+ *       "content": "console.log('Hello World')"
+ *     }
+ *   ]
+ * }
  */
 app.patch("/update-files", async (req, res) => {
   const updates = req.body.updates
@@ -173,6 +207,23 @@ app.patch("/update-files", async (req, res) => {
 
 /**
  * @route POST /create-file
+ * @description Create new files with the content provided in the request body.
+ * The request body should contain a property "files"
+ * which is an array of objects.
+ *
+ * Each object should contain:
+ * - file: relative file path
+ * - content: file content
+ *
+ * - eg.
+ * {
+ *   "files": [
+ *     {
+ *       "file": "src/index.js",
+ *       "content": "console.log('Hello World')"
+ *     }
+ *   ]
+ * }
  */
 app.post("/create-files", async (req, res) => {
   const files = req.body.files
