@@ -1,25 +1,26 @@
-import axios from "axios";
-import {tool} from "langchain";
+import axios from 'axios';
+import { tool } from "langchain"
 import * as z from "zod";
 
+
 export const listFiles = tool(
-    async ({paths: []}) => {
-
-        console.log("===================================================")
+    async ({ }) => {
+        console.log("=================================")
         console.log("using list files tool")
-        console.log("===================================================")
+        console.log("=================================")
 
-        const response = await axios.post("http://019e41c5-2bd9-713b-aff8-4c474c088de6.agent.localhost/list-files");
+        const response = await axios.get("http://019e46ae-abae-71aa-b006-22bb18d112eb.agent.localhost/list-files")
 
-        console.log("===================================================")
-        console.log("response from the list files tool", response.data)
-        console.log("===================================================")
+
+        console.log("=================================")
+        console.log("response from list files tool", response.data)
+        console.log("=================================")
 
         return JSON.stringify(response.data.files);
     },
     {
         name: "list_files",
-        description: "List files in the project directory. This is useful for understanding the project structure and finding relevant files for code generation or modification. The tool returns a list of file paths relative to the project root.",
+        description: "List all the files in the project directory. This is useful for understanding what files are available to work with.",
         schema: z.object({})
     }
 )
@@ -27,23 +28,22 @@ export const listFiles = tool(
 export const readFiles = tool(
     async ({ files: [] }) => {
 
-        console.log("===================================================")
-        console.log("using read files tool")
-        console.log("===================================================")
+        console.log("=================================")
+        console.log("using read files tool with files", files)
+        console.log("=================================")
 
-        const response = await axios.post("http://019e41c5-2bd9-713b-aff8-4c474c088de6.agent.localhost/read-file?files=" + files.join(","));
-        
-        console.log("===================================================")
-        console.log("response from the read files tool", response.data)
-        console.log("===================================================")
+        const response = await axios.get("http://019e46ae-abae-71aa-b006-22bb18d112eb.agent.localhost/read-files?files=" + files.join(","))
 
+        console.log("=================================")
+        console.log("response from read files tool", response.data)
+        console.log("=================================")
         return JSON.stringify(response.data);
     },
     {
-        name: "read_file",
-        description: "Read the contents of one or more files. This is useful for understanding the existing codebase, extracting information, or using it as context for code generation. The tool takes a list of file paths (relative to the project root) and returns their contents.",
+        name: "read_files",
+        description: "Read the contents of specified files. This is useful for understanding the content of files that are relevant to the task at hand.",
         schema: z.object({
-            files: z.array(z.string()).describe("A list of file paths to read, relative to the project root. These should be files that were listed using the list_files tool or created later.")
+            files: z.array(z.string()).describe("The list of files absolute paths to read. These should be files that were listed using the list_files tool or created later")
         })
     }
 )
@@ -51,26 +51,27 @@ export const readFiles = tool(
 export const updateFiles = tool(
     async ({ files }) => {
 
-        console.log("===================================================")
-        console.log("using update files tool")
-        console.log("===================================================")
+        console.log("=================================")
+        console.log("using update files tool with files", files)
+        console.log("=================================")
 
-        const response = await axios.patch("http://019e41c5-2bd9-713b-aff8-4c474c088de6.agent.localhost/update-files",{
+        const response = await axios.patch("http://019e46ae-abae-71aa-b006-22bb18d112eb.agent.localhost/update-files", {
             updates: files
         })
-
-        console.log("===================================================")
-        console.log("response from the update files tool", response.data)
-        console.log("===================================================")
+        console.log("=================================")
+        console.log("response from update files tool", response.data)
+        console.log("=================================")
 
         return JSON.stringify(response.data.results);
     },
     {
-        name: "update_file",
-        description: "Update the contents of one or more files. This is useful for modifying the codebase, fixing bugs, or implementing new features. The tool takes a list of updates, where each update includes a file path (relative to the project root) and the new content for that file. The tool returns the results of the update operation, which may include success status or error messages. This tool can also be used to create files that do not exist yet by providing a new file path and content.",
+        name: "update_files",
+        description: "Update the contents of specified files. This is useful for making changes to files based on the requirements of the task at hand. this tool can also use to create new files by providing a new file name in the file field and the content to be added in the content field.",
         schema: z.object({
-            files: z.string().describe("The absolute path of the file to update."),
-            content: z.string().describe("The new content to write to the file.")
-        }).describe("The list of files to be updated")
+            files: z.array(z.object({
+                file: z.string().describe("The absolute path of the file to update"),
+                content: z.string().describe("The new content for the file, the content should support json format.")
+            })).describe("The list of files to update and their new contents")
+        })
     }
 )

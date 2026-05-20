@@ -10,7 +10,7 @@ app.get('/api/ai/healthz', (req, res) => {
   res.status(200).json({ 
     message: 'AI Orchestration API is healthy',
     status: 'ok' 
-});
+  });
 });
 
 export default app;
