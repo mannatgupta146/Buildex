@@ -1,42 +1,54 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: codespace-ingress
+  name: buildex-ingress
   labels:
-    app.kubernetes.io/name: codespace-ingress
+    app.kubernetes.io/name: buildex-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
 spec:
   ingressClassName: nginx
   rules:
-  - http:
-      paths:
-      - pathType: Prefix
-        path: "/api/sandbox"
-        backend:
-          service:
-            name: sandbox-service
-            port: 
-              number: 80
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/api/ai"
+            backend:
+              service:
+                name: ai-service
+                port:
+                  number: 80
 
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/api/sandbox"
+            backend:
+              service:
+                name: sandbox-service
+                port:
+                  number: 80
 
-  - host: "*.preview.localhost"
-    http:
-      paths:
-      - pathType: Prefix
-        path: "/"
-        backend:
-          service:
-            name: router-service
-            port: 
-              number: 80
+    - host: "*.preview.localhost"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: router-service
+                port:
+                  number: 80
 
-
-  - host: "*.agent.localhost"
-    http:
-      paths:
-      - pathType: Prefix
-        path: "/"
-        backend:
-          service:
-            name: router-service
-            port: 
-              number: 80
+    - host: "*.agent.localhost"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: router-service
+                port:
+                  number: 80
