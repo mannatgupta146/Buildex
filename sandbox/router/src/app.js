@@ -13,6 +13,8 @@ app.get('/api/status/readyz', (req, res) => {
     res.status(200).json({ status: 'ready' });
 })
 
+
+
 const proxies = {}
 const agentProxies = {}
 
@@ -41,26 +43,26 @@ function getAgentProxy(sandboxId) {
             ws: true,
         })
     }
+
     return agentProxies[ sandboxId ];
 }
 
-
 app.use((req, res, next) => {
     const host = req.headers.host;
-    const sandboxId = host.split('.')[ 0 ];
+    const sandboxId = host.split('.')[ 0 ]; // Extract sandboxId from subdomain
 
     /**
-     * pod1.preview.localhost -> sandbox-service-pod1
-     * pod1.agent.localhost -> sandbox-service-pod1
+     * pod1.preview.localhost
+     * pod1.agent.localhost
      */
 
-    if(host.split('.')[ 1 ] === 'preview') {
-        return getProxy(sandboxId)(req, res, next);
-    } else if(host.split('.')[ 1 ] === 'agent') {
+    if (host.split('.')[ 1 ] === 'agent') {
         return getAgentProxy(sandboxId)(req, res, next);
-    } else {
-        return res.status(400).json({ message: 'Invalid host header' });
-    }    
+    }
+
+    else if (host.split('.')[ 1 ] === 'preview') {
+        return getProxy(sandboxId)(req, res, next);
+    }
 })
 
 export default app
