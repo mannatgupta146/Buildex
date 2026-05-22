@@ -12,13 +12,16 @@ const model = new ChatMistralAI({
 const agent = createAgent({
     model,
     tools: [ listFiles, readFiles, updateFiles ],
+    
 })
 
-await agent.invoke({
+/* await agent.invoke({
     messages: [
         {
             role: "user",
             content: "create a simple snake game in the project using react and css."
         }
     ]
-})
+}) */
+
+export default agent;
