@@ -4,6 +4,7 @@ kind: Config
 build:
   local:
     push: false
+    useDockerCLI: true
 
   tagPolicy:
     envTemplate:
@@ -14,6 +15,9 @@ build:
       context: ai-orchestration
       docker:
         dockerfile: dockerfile
+        cliFlags:
+          - --provenance=false
+          - --sbom=false
       sync:
         infer:
           - "src/**"
@@ -22,21 +26,33 @@ build:
       context: sandbox/agent
       docker:
         dockerfile: dockerfile
+        cliFlags:
+          - --provenance=false
+          - --sbom=false
 
     - image: router
       context: sandbox/router
       docker:
         dockerfile: dockerfile
+        cliFlags:
+          - --provenance=false
+          - --sbom=false
 
     - image: sandbox
       context: sandbox/server
       docker:
         dockerfile: dockerfile
+        cliFlags:
+          - --provenance=false
+          - --sbom=false
 
     - image: template
       context: sandbox/template
       docker:
         dockerfile: dockerfile
+        cliFlags:
+          - --provenance=false
+          - --sbom=false
 
 manifests:
   rawYaml:

@@ -3,5 +3,6 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main
 kubectl create secret generic ai-secret --from-literal=MISTRALAI_API_KEY=
 
 
-http://sandbox-service-019e513a-7d79-744d-a487-e79ff07aa673:3000
-http://019e513a-7d79-744d-a487-e79ff07aa673.preview.localhost/
+http:/sandbox-service-019e551e-5b2d-7368-b5df-0d232ed9fefd:3000
+
+http://019e551e-5b2d-7368-b5df-0d232ed9fefd.preview.localhost/

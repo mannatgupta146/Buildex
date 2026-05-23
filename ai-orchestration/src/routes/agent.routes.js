@@ -1,26 +1,40 @@
 import { Router } from "express"
-import agent from "../agents/code.agent.js";
+import agent from "../agents/code.agent.js"
 
-const agentRouter = Router();
+const agentRouter = Router()
 
 agentRouter.post("/invoke", async (req, res) => {
-    try{
-        const { message } = req.body;
+  try {
+    const { message } = req.body
 
-        const response = await agent.invoke({messages: [{
-            role: "user",
-            content: message
-        }]});
-        res.status(200).json({
-            response
-        })
-    }catch(error){
-        console.error("Error invoking agent:", error);
-        res.status(500).json({
-            error: "Failed to invoke agent",
-            details: error.message
-        });
+    const response = await agent.invoke({
+      messages: [
+        {
+          role: "user",
+          content: message,
+        },
+      ],
+    })
+
+    const lastMessage = response?.messages?.[response.messages.length - 1]
+    const finalContent =
+      lastMessage?.content ?? lastMessage?.kwargs?.content ?? ""
+
+    if (finalContent) {
+      console.log("[agent-final]", finalContent)
     }
+
+    res.status(200).json({
+      response,
+      finalContent,
+    })
+  } catch (error) {
+    console.error("Error invoking agent:", error)
+    res.status(500).json({
+      error: "Failed to invoke agent",
+      details: error.message,
+    })
+  }
 })
 
-export default agentRouter;
+export default agentRouter
