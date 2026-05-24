@@ -2,18 +2,15 @@ import axios from "axios";
 import { tool } from "langchain";
 import * as z from "zod";
 
-const BASE_URL =
-    "http:/sandbox-service-019e551e-5b2d-7368-b5df-0d232ed9fefd:3000";
-
 export const listFiles = tool(
-    async () => {
+    async ({}, config) => {
         try {
             console.log("=================================");
             console.log("using list files tool");
             console.log("=================================");
 
             const response =
-                await axios.get(`${BASE_URL}/list-files`);
+                await axios.get(`http:/sandbox-service-${config.context.projectId}:3000/list-files`);
 
             return JSON.stringify(
                 response.data.files ?? []
@@ -40,7 +37,7 @@ export const listFiles = tool(
 );
 
 export const readFiles = tool(
-    async ({ files }) => {
+    async ({ files = [] }, config) => {
         try {
             console.log("=================================");
             console.log("using read files tool", files);
@@ -54,7 +51,7 @@ export const readFiles = tool(
 
             const response =
                 await axios.get(
-                    `${BASE_URL}/read-files`,
+                    `http:/sandbox-service-${config.context.projectId}:3000/read-files`,
                     {
                         params: {
                             files: files.join(",")
@@ -91,7 +88,7 @@ export const readFiles = tool(
 );
 
 export const updateFiles = tool(
-    async ({ files }) => {
+    async ({ files }, config ) => {
         try {
             console.log("=================================");
             console.log("using update files", files);
@@ -99,7 +96,7 @@ export const updateFiles = tool(
 
             const response =
                 await axios.patch(
-                    `${BASE_URL}/update-files`,
+                    `http:/sandbox-service-${config.context.projectId}:3000/update-files`,
                     {
                         updates: files
                     }

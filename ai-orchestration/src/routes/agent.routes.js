@@ -5,7 +5,7 @@ const agentRouter = Router()
 
 agentRouter.post("/invoke", async (req, res) => {
   try {
-    const { message } = req.body
+    const { message, projectId } = req.body
 
     const response = await agent.invoke({
       messages: [
@@ -13,7 +13,11 @@ agentRouter.post("/invoke", async (req, res) => {
           role: "user",
           content: message,
         },
-      ],
+      ]},
+    {
+        context: {
+            projectId
+        }
     })
 
     const lastMessage = response?.messages?.[response.messages.length - 1]
