@@ -9,8 +9,12 @@ export const listFiles = tool(
             console.log("using list files tool");
             console.log("=================================");
 
+            const writer = config.writer
+
             const response =
                 await axios.get(`http:/sandbox-service-${config.context.projectId}:3000/list-files`);
+
+            writer.write("Files listed successfully.");
 
             return JSON.stringify(
                 response.data.files ?? []
@@ -43,6 +47,8 @@ export const readFiles = tool(
             console.log("using read files tool", files);
             console.log("=================================");
 
+            const writer = config.writer
+
             if (!files?.length) {
                 throw new Error(
                     "files array cannot be empty"
@@ -58,6 +64,8 @@ export const readFiles = tool(
                         }
                     }
                 );
+
+            writer.write("Files read successfully.");
 
             return JSON.stringify(
                 response.data
@@ -94,6 +102,8 @@ export const updateFiles = tool(
             console.log("using update files", files);
             console.log("=================================");
 
+            const writer = config.writer
+
             const response =
                 await axios.patch(
                     `http:/sandbox-service-${config.context.projectId}:3000/update-files`,
@@ -101,6 +111,8 @@ export const updateFiles = tool(
                         updates: files
                     }
                 );
+
+            writer.write("Files updated successfully.");
 
             return JSON.stringify(
                 response.data.results

@@ -17,8 +17,13 @@ agentRouter.post("/invoke", async (req, res) => {
     {
         context: {
             projectId
-        }
+        },
+        streamMode: "custom"
     })
+
+    for await (const chunk of response) {
+      console.log("[agent-chunk]", chunk)
+    }
 
     const lastMessage = response?.messages?.[response.messages.length - 1]
     const finalContent =
