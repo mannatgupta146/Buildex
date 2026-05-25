@@ -40,14 +40,18 @@ spec:
             httpGet:
               path: /api/ai/healthz
               port: 3000
-            failureThreshold: 30
+            initialDelaySeconds: 20
+            failureThreshold: 60
             periodSeconds: 5
+            timeoutSeconds: 5
           readinessProbe:
             httpGet:
               path: /api/ai/healthz
               port: 3000
-            initialDelaySeconds: 0
-            timeoutSeconds: 10
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
           ports:
             - containerPort: 3000
               name: ai-port
