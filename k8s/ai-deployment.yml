@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ai-deployment
+  name:  ai-deployment
   labels:
-    name: ai-deployment
+    name:  ai-deployment
 spec:
   replicas: 2
   selector:
@@ -12,46 +12,37 @@ spec:
   template:
     metadata:
       labels:
-        app: ai-server
+        app:  ai-server
     spec:
       containers:
-        - image: ai-orchestration
-          name: ai-server
-          resources:
-            requests:
-              cpu: "250m"
-              memory: "125M"
-            limits:
-              cpu: "500m"
-              memory: "250M"
-          env:
-            - name: MISTRALAI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: ai-secret
-                  key: MISTRALAI_API_KEY
-          livenessProbe:
-            httpGet:
-              path: /api/ai/healthz
-              port: 3000
-            initialDelaySeconds: 90
-            timeoutSeconds: 10
-          startupProbe:
-            httpGet:
-              path: /api/ai/healthz
-              port: 3000
-            initialDelaySeconds: 20
-            failureThreshold: 60
-            periodSeconds: 5
-            timeoutSeconds: 5
-          readinessProbe:
-            httpGet:
-              path: /api/ai/healthz
-              port: 3000
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 6
-          ports:
-            - containerPort: 3000
-              name: ai-port
+      - image:  ai-orchestration
+        name:  ai-server
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "128M"
+          limits:
+            cpu: "500m"
+            memory: "256M"
+        env:
+          - name: MISTRALAI_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: ai-secret
+                key: MISTRALAI_API_KEY
+        livenessProbe:
+          httpGet:
+            path: /api/status/healthz
+            port: 3000
+          initialDelaySeconds: 90
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/status/healthz
+            port: 3000
+          initialDelaySeconds: 30
+          timeoutSeconds: 10   
+        ports:
+        - containerPort:  3000
+          name:  ai-server-port
+        

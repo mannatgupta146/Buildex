@@ -4,7 +4,7 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 import http from 'http';
 
 const app = express();
-app.use(morgan('dev'));
+app.use(morgan('combined'));
 
 app.get('/api/status/healthz', (req, res) => {
     res.status(200).json({ status: 'ok' });
