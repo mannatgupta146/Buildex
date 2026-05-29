@@ -6,7 +6,7 @@ import { Server } from "socket.io";
 import http from 'http';
 import pty from 'node-pty';
 import os from 'os';
-
+import cors from 'cors';
 
 const WORKING_DIR = '/workspace';
 
@@ -14,6 +14,10 @@ const app = express();
 const httpServer = http.createServer(app);
 
 app.use(morgan('dev'));
+app.use(cors({
+    methods: [ "GET", "POST", "PATCH", "DELETE" ],
+    origin: "*",
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -34,7 +38,6 @@ app.get('/', (req, res) => {
 });
 
 
-
 const shell = process.env.SHELL || 'bash';
 
 // Spawn the PTY process
@@ -45,7 +48,6 @@ const ptyProcess = pty.spawn(shell, [], {
     cwd: "/workspace",
     env: process.env
 });
-
 
 ptyProcess.onData((data) => {
     io.emit('terminal-output', data);
@@ -66,8 +68,6 @@ io.on("connection", (socket) => {
         console.log("Client disconnected: " + socket.id);
     });
 })
-
-
 
 /**
  * @route GET /list-files
