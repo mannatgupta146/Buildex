@@ -67,8 +67,7 @@ export default function App() {
   const { sandboxId, previewUrl, agentBase } = sandbox
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden"
-      style={{ background: '#070b14' }}>
+    <div className="flex flex-col h-full w-full overflow-hidden">
 
       {/* Top bar */}
       <TopBar
