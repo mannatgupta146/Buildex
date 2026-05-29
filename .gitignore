@@ -74,6 +74,7 @@ playwright-report/
 *.bak
 *.old
 
-# Explicitly ignore nested node_modules that may have been committed
-ai-orchestration/node_modules/
 **/node_modules/
+**/dist/
+**/build/
+**/.env
