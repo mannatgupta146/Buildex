@@ -12,10 +12,10 @@ export default function TopBar({ sandboxId, activeTab, onTabChange, status }) {
     <header
       className="flex items-center justify-between px-4 shrink-0"
       style={{
-        height: "48px",
-        background: "rgba(13,20,36,0.95)",
-        borderBottom: "1px solid #1e2d45",
-        backdropFilter: "blur(12px)",
+        height: "56px",
+        background: "rgba(9,16,27,0.82)",
+        borderBottom: "1px solid var(--border)",
+        backdropFilter: "blur(16px)",
       }}
     >
       {/* Left — Logo + sandbox ID */}
@@ -25,18 +25,26 @@ export default function TopBar({ sandboxId, activeTab, onTabChange, status }) {
             className="w-6 h-6 rounded flex items-center justify-center"
             style={{
               background:
-                "linear-gradient(135deg, rgba(34,211,238,0.2), rgba(8,145,178,0.1))",
-              border: "1px solid rgba(34,211,238,0.3)",
+                "linear-gradient(135deg, rgba(245,158,11,0.18), rgba(249,115,22,0.10))",
+              border: "1px solid rgba(245,158,11,0.24)",
             }}
           >
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="#22d3ee">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 16 16"
+              fill="var(--accent)"
+            >
               <rect x="1" y="1" width="6" height="6" rx="1" />
               <rect x="9" y="1" width="6" height="6" rx="1" opacity="0.5" />
               <rect x="1" y="9" width="6" height="6" rx="1" opacity="0.5" />
               <rect x="9" y="9" width="6" height="6" rx="1" />
             </svg>
           </div>
-          <span className="text-sm font-semibold" style={{ color: "#e2e8f0" }}>
+          <span
+            className="text-sm font-semibold"
+            style={{ color: "var(--text-primary)" }}
+          >
             Buildex
           </span>
         </div>
@@ -45,15 +53,18 @@ export default function TopBar({ sandboxId, activeTab, onTabChange, status }) {
           <div
             className="flex items-center gap-2 px-2 py-0.5 rounded"
             style={{
-              background: "rgba(34,211,238,0.06)",
-              border: "1px solid rgba(34,211,238,0.15)",
+              background: "rgba(245,158,11,0.06)",
+              border: "1px solid rgba(245,158,11,0.12)",
             }}
           >
             <div
               className="w-1.5 h-1.5 rounded-full"
               style={{ background: s.color, boxShadow: `0 0 6px ${s.color}` }}
             />
-            <span className="text-xs font-mono" style={{ color: "#64748b" }}>
+            <span
+              className="text-xs font-mono"
+              style={{ color: "var(--text-secondary)" }}
+            >
               {shortId}
             </span>
           </div>
@@ -63,7 +74,10 @@ export default function TopBar({ sandboxId, activeTab, onTabChange, status }) {
       {/* Center — Tab switcher */}
       <div
         className="flex items-center gap-1 p-1 rounded-lg"
-        style={{ background: "#0a0f1e", border: "1px solid #1e2d45" }}
+        style={{
+          background: "var(--bg-base)",
+          border: "1px solid var(--border)",
+        }}
       >
         {[
           { id: "preview", icon: "⬛", label: "Preview" },
@@ -77,12 +91,12 @@ export default function TopBar({ sandboxId, activeTab, onTabChange, status }) {
               activeTab === tab.id
                 ? {
                     background:
-                      "linear-gradient(135deg, rgba(34,211,238,0.15), rgba(8,145,178,0.08))",
-                    color: "#22d3ee",
-                    border: "1px solid rgba(34,211,238,0.3)",
+                      "linear-gradient(135deg, rgba(245,158,11,0.16), rgba(249,115,22,0.08))",
+                    color: "var(--text-primary)",
+                    border: "1px solid rgba(245,158,11,0.24)",
                   }
                 : {
-                    color: "#475569",
+                    color: "var(--text-muted)",
                     border: "1px solid transparent",
                   }
             }

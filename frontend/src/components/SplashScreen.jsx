@@ -141,7 +141,7 @@ export default function SplashScreen({ onSandboxCreated }) {
               <div
                 className="flex items-center gap-3 px-8 py-4 rounded-xl"
                 style={{
-                  background: "#17122b",
+                  background: "var(--bg-panel-strong)",
                   border: "1px solid rgba(255,255,255,0.08)",
                 }}
               >

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import SplashScreen from "./components/SplashScreen"
 import TopBar from "./components/TopBar"
 import FileExplorer from "./components/FileExplorer"
@@ -18,10 +18,29 @@ export default function App() {
   const [fileRefreshKey, setFileRefreshKey] = useState(0)
 
   // Terminal resize
-  const [terminalHeight, setTerminalHeight] = useState(220)
+  const [terminalHeight, setTerminalHeight] = useState(240)
   const isDragging = useRef(false)
   const dragStartY = useRef(0)
   const dragStartH = useRef(0)
+
+  const clampTerminalHeight = useCallback((height) => {
+    const viewportLimit =
+      typeof window !== "undefined"
+        ? Math.max(160, Math.floor(window.innerHeight * 0.42))
+        : 420
+    return Math.min(Math.max(height, 160), viewportLimit)
+  }, [])
+
+  useEffect(() => {
+    const handleResize = () => {
+      setTerminalHeight((current) => clampTerminalHeight(current))
+    }
+
+    window.addEventListener("resize", handleResize)
+    handleResize()
+
+    return () => window.removeEventListener("resize", handleResize)
+  }, [clampTerminalHeight])
 
   const handleSandboxCreated = useCallback((data) => {
     const agentBase = `http://${data.sandboxId}.agent.localhost`
@@ -51,7 +70,7 @@ export default function App() {
     const onMove = (ev) => {
       if (!isDragging.current) return
       const delta = dragStartY.current - ev.clientY
-      const newH = Math.min(Math.max(dragStartH.current + delta, 80), 500)
+      const newH = clampTerminalHeight(dragStartH.current + delta)
       setTerminalHeight(newH)
     }
     const onUp = () => {
@@ -71,8 +90,7 @@ export default function App() {
   const { sandboxId, previewUrl, agentBase } = sandbox
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden">
-      {/* Top bar */}
+    <div className="flex h-dvh w-full flex-col overflow-hidden app-shell">
       <TopBar
         sandboxId={sandboxId}
         activeTab={activeTab}
@@ -81,8 +99,7 @@ export default function App() {
       />
 
       {/* Main layout */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* File Explorer sidebar */}
+      <div className="flex min-h-0 flex-1 overflow-hidden px-3 pb-3 gap-3">
         <FileExplorer
           agentBase={agentBase}
           activeFile={activeFile}
@@ -90,10 +107,8 @@ export default function App() {
           refreshKey={fileRefreshKey}
         />
 
-        {/* Center — main content + terminal */}
-        <div className="flex flex-col flex-1 overflow-hidden">
-          {/* Main content area */}
-          <div className="flex-1 overflow-hidden">
+        <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-hidden workspace-panel">
+          <div className="min-h-0 flex-1 overflow-hidden">
             {activeTab === "preview" ? (
               <PreviewFrame previewUrl={previewUrl} />
             ) : (
@@ -101,36 +116,29 @@ export default function App() {
             )}
           </div>
 
-          {/* Drag handle */}
           <div
-            className="shrink-0 flex items-center justify-center cursor-row-resize select-none"
+            className="workspace-splitter"
             style={{
-              height: "6px",
-              background: "#0d1424",
-              borderTop: "1px solid #1e2d45",
-              borderBottom: "1px solid #1e2d45",
-              zIndex: 10,
+              height: "14px",
             }}
             onMouseDown={handleDragStart}
             title="Drag to resize terminal"
           >
-            <div
-              className="w-12 h-0.5 rounded-full"
-              style={{ background: "#2a3f60" }}
-            />
+            <div className="workspace-splitter-handle" />
           </div>
 
-          {/* Terminal */}
           <div
-            className="shrink-0 overflow-hidden"
+            className="shrink-0 overflow-hidden terminal-shell"
             style={{ height: `${terminalHeight}px` }}
           >
             <Terminal sandboxId={sandboxId} />
           </div>
         </div>
 
-        {/* Right — AI Chat */}
-        <div className="shrink-0 overflow-hidden" style={{ width: "340px" }}>
+        <div
+          className="shrink-0 overflow-hidden workspace-panel"
+          style={{ width: "360px" }}
+        >
           <AiChat sandboxId={sandboxId} onFilesChanged={handleFilesChanged} />
         </div>
       </div>
