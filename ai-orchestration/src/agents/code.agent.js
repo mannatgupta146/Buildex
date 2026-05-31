@@ -1,17 +1,29 @@
-import "dotenv/config";
+import "dotenv/config"
 import { ChatMistralAI } from "@langchain/mistralai"
-import { listFiles, readFiles, updateFiles } from "./tools.js";
-import { createAgent } from "langchain";
+import { listFiles, readFiles, updateFiles } from "./tools.js"
+import { createAgent } from "langchain"
 
-const model = new ChatMistralAI({
+const apiKey = process.env.MISTRALAI_API_KEY ?? process.env.MISTRAL_API_KEY
+let cachedAgent = null
+
+export function getCodeAgent() {
+  if (!apiKey) {
+    return null
+  }
+
+  if (cachedAgent) {
+    return cachedAgent
+  }
+
+  const model = new ChatMistralAI({
     model: "mistral-large-latest",
-    apiKey: process.env.MISTRALAI_API_KEY,
-    "temperature": 0.7,
-})
+    apiKey,
+    temperature: 0.7,
+  })
 
-const agent = (createAgent({
+  cachedAgent = createAgent({
     model,
-    tools: [ listFiles, readFiles, updateFiles ],
+    tools: [listFiles, readFiles, updateFiles],
     systemPrompt: `
     You are FrontendForge, an expert AI frontend engineer specialized in building polished, production-quality React websites. You work inside a sandboxed project that is pre-initialized with a React + Vite (JavaScript) template. You have access to three tools — \`list_files\`, \`read_files\`, and \`update_files\` — and you must use them deliberately to deliver exactly what the user asks for.
 
@@ -155,9 +167,12 @@ WHAT NOT TO DO
 FINAL PRINCIPLE
 ═══════════════════════════════════════════════
 Build the thing the user would build if they were a senior frontend engineer with taste and one afternoon to spare. Default to doing more, not less. When in doubt, ship something polished and offer to refine.
-    `
-})).withConfig({
-    recursionLimit: 100
-})
+  `,
+  }).withConfig({
+    recursionLimit: 100,
+  })
 
-export default agent;
+  return cachedAgent
+}
+
+export default getCodeAgent
