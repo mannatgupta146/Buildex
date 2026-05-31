@@ -1,42 +1,18 @@
-import { Router } from "express";
-import agent from "../agents/code.agent.js";
+import express from 'express';
+import agentRouter from './routes/agent.routes.js';
+import morgan from 'morgan';
 
-const agentRouter = Router();
+const app = express();
 
-agentRouter.post("/invoke", async (req, res) => {
-    try {
-        const { message, projectId } = req.body;
+// Middleware
+app.use(morgan('dev'));
+app.use(express.json());
 
-        res.writeHead(200, {
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive'
-        });
+app.get("/api/status/healthz", (req, res) => {
+    res.status(200).json({ status: "ok" });
+})
 
-        const response = await agent.stream(
-            {
-                messages: [ {
-                    role: "user",
-                    content: message
-                } ]
-            },
-            {
-                context: {
-                    projectId
-                },
-                streamMode: "custom"
-            });
+// Routes
+app.use("/api/ai", agentRouter);
 
-        for await (const chunk of response) {
-            console.log(chunk)
-            res.write(`data: ${chunk}\n\n`);
-        }
-
-        res.json({ response });
-    } catch (error) {
-        console.error("Error invoking agent:", error);
-        res.status(500).json({ error: "Failed to invoke agent" });
-    }
-});
-
-export default agentRouter;
+export default app;

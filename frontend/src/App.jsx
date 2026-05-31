@@ -12,6 +12,9 @@ export default function App() {
   const [sandbox, setSandbox] = useState(null) // { sandboxId, previewUrl, agentBase }
   const [status, setStatus] = useState("ready")
   const [previewReady, setPreviewReady] = useState(false)
+  const [workspaceVisible, setWorkspaceVisible] = useState(false)
+  const [sandboxStartedAt, setSandboxStartedAt] = useState(null)
+  const [waitSeconds, setWaitSeconds] = useState(0)
 
   // UI state
   const [activeTab, setActiveTab] = useState("preview") // 'preview' | 'files'
@@ -44,14 +47,18 @@ export default function App() {
   }, [clampTerminalHeight])
 
   const handleSandboxCreated = useCallback((data) => {
+    const startedAt = Date.now()
     const agentBase = `http://${data.sandboxId}.agent.localhost`
     setSandbox({
       sandboxId: data.sandboxId,
       previewUrl: data.previewUrl,
       agentBase,
     })
+    setSandboxStartedAt(startedAt)
+    setWaitSeconds(0)
     setStatus("loading")
     setPreviewReady(false)
+    setWorkspaceVisible(false)
   }, [])
 
   const handleFilesChanged = useCallback(() => {
@@ -71,7 +78,8 @@ export default function App() {
     let cancelled = false
     let timeoutId
     const startedAt = Date.now()
-    const maxWaitMs = 120000
+    const maxWaitMs = 30000
+    const retryDelayMs = 1000
 
     const pollPreviewReady = async () => {
       try {
@@ -89,27 +97,26 @@ export default function App() {
 
         if (data.ready) {
           setPreviewReady(true)
+          setWorkspaceVisible(true)
           setStatus("ready")
           return
         }
 
         if (Date.now() - startedAt >= maxWaitMs) {
-          setStatus("error")
-          return
+          setStatus("warning")
         }
 
-        timeoutId = setTimeout(pollPreviewReady, 2000)
+        timeoutId = setTimeout(pollPreviewReady, retryDelayMs)
       } catch (error) {
         if (cancelled) {
           return
         }
 
         if (Date.now() - startedAt >= maxWaitMs) {
-          setStatus("error")
-          return
+          setStatus("warning")
         }
 
-        timeoutId = setTimeout(pollPreviewReady, 2000)
+        timeoutId = setTimeout(pollPreviewReady, retryDelayMs)
       }
     }
 
@@ -122,6 +129,30 @@ export default function App() {
       }
     }
   }, [sandbox?.sandboxId])
+
+  useEffect(() => {
+    if (!sandboxStartedAt || previewReady) {
+      return undefined
+    }
+
+    const updateWaitSeconds = () => {
+      setWaitSeconds(
+        Math.max(0, Math.floor((Date.now() - sandboxStartedAt) / 1000)),
+      )
+    }
+
+    updateWaitSeconds()
+    const intervalId = setInterval(updateWaitSeconds, 1000)
+    const revealWorkspaceId = setTimeout(() => {
+      setWorkspaceVisible(true)
+      setStatus("warning")
+    }, 30000)
+
+    return () => {
+      clearInterval(intervalId)
+      clearTimeout(revealWorkspaceId)
+    }
+  }, [sandboxStartedAt, previewReady])
 
   // Drag to resize terminal
   const handleDragStart = (e) => {
@@ -144,9 +175,15 @@ export default function App() {
     document.addEventListener("mouseup", onUp)
   }
 
-  // Landing / splash
-  if (!sandbox) {
-    return <SplashScreen onSandboxCreated={handleSandboxCreated} />
+  // Landing / splash / build phase
+  if (!sandbox || (!previewReady && !workspaceVisible)) {
+    return (
+      <SplashScreen
+        onSandboxCreated={handleSandboxCreated}
+        mode={sandbox ? "building" : "idle"}
+        waitSeconds={waitSeconds}
+      />
+    )
   }
 
   const { sandboxId, previewUrl, agentBase } = sandbox
@@ -172,40 +209,11 @@ export default function App() {
         <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-hidden workspace-panel">
           <div className="min-h-0 flex-1 overflow-hidden">
             {activeTab === "preview" ? (
-              previewReady ? (
-                <PreviewFrame previewUrl={previewUrl} />
-              ) : (
-                <div
-                  className="flex h-full w-full items-center justify-center"
-                  style={{ background: "var(--bg-base)" }}
-                >
-                  <div
-                    className="flex flex-col items-center gap-3 rounded-2xl px-6 py-5"
-                    style={{
-                      background: "var(--bg-panel-strong)",
-                      border: "1px solid var(--border)",
-                    }}
-                  >
-                    <div
-                      className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin"
-                      style={{
-                        borderColor: "var(--accent)",
-                        borderTopColor: "transparent",
-                      }}
-                    />
-                    <div className="text-sm font-medium">
-                      Preparing preview…
-                    </div>
-                    <div
-                      className="text-xs text-center max-w-xs"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      Waiting for the sandbox pod to become ready before the
-                      preview frame loads.
-                    </div>
-                  </div>
-                </div>
-              )
+              <PreviewFrame
+                previewUrl={previewUrl}
+                loading={!previewReady}
+                showIframe={previewReady}
+              />
             ) : (
               <FileViewer agentBase={agentBase} filePath={activeFile} />
             )}

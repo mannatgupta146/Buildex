@@ -1,17 +1,14 @@
 import { useState, useEffect } from "react"
 
-export default function SplashScreen({ onSandboxCreated }) {
+export default function SplashScreen({
+  onSandboxCreated,
+  mode = "idle",
+  waitSeconds = 0,
+}) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [dots, setDots] = useState("")
 
-  useEffect(() => {
-    if (!loading) return
-    const interval = setInterval(() => {
-      setDots((d) => (d.length >= 3 ? "" : d + "."))
-    }, 400)
-    return () => clearInterval(interval)
-  }, [loading])
+  const isBuilding = mode === "building"
 
   const handleCreate = async () => {
     setLoading(true)
@@ -26,6 +23,37 @@ export default function SplashScreen({ onSandboxCreated }) {
       setLoading(false)
     }
   }
+
+  const title = isBuilding ? "Preparing preview…" : "Buildex"
+  const subtitle = isBuilding
+    ? "Waiting for the sandbox pod to become ready before the workspace loads."
+    : "A polished AI workspace for launching, editing, and previewing your project inside one premium studio."
+  const note = isBuilding
+    ? "Your files and preview will appear automatically when the sandbox is ready."
+    : "Fast setup, clean layouts, and an expressive interface designed to feel modern and focused."
+  const formatWaitLabel = (seconds) => {
+    if (seconds < 60) {
+      return `Waiting ${seconds}s`
+    }
+
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    const timeLabel = `${minutes}m ${String(remainingSeconds).padStart(2, "0")}s`
+
+    if (seconds >= 30) {
+      return `Still starting • ${timeLabel}`
+    }
+
+    return `Waiting ${timeLabel}`
+  }
+
+  const waitLabel = isBuilding
+    ? formatWaitLabel(waitSeconds)
+    : "Ready to launch"
+  const waitHint =
+    isBuilding && waitSeconds >= 30
+      ? "This is taking longer than usual, but the sandbox is still starting."
+      : null
 
   return (
     <div className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden">
@@ -106,18 +134,12 @@ export default function SplashScreen({ onSandboxCreated }) {
           </div>
 
           <div className="space-y-4">
-            <h1 className="hero-title">Buildex</h1>
-            <p className="hero-sub">
-              A polished AI workspace for launching, editing, and previewing
-              your project inside one premium studio.
-            </p>
-            <p className="splash-note">
-              Fast setup, clean layouts, and an expressive interface designed to
-              feel modern and focused.
-            </p>
+            <h1 className="hero-title">{title}</h1>
+            <p className="hero-sub">{subtitle}</p>
+            <p className="splash-note">{note}</p>
           </div>
 
-          {!loading ? (
+          {!loading && !isBuilding ? (
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <button onClick={handleCreate} className="launch-btn">
                 <span className="flex items-center gap-2">
@@ -156,12 +178,36 @@ export default function SplashScreen({ onSandboxCreated }) {
                   className="text-sm font-medium"
                   style={{ color: "var(--text-secondary)" }}
                 >
-                  Initializing Buildex{dots}
+                  {isBuilding ? "Starting workspace" : "Initializing Buildex"}
                 </span>
               </div>
               <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                Setting up your isolated workspace
+                {isBuilding
+                  ? "The preview is being prepared."
+                  : "Setting up your isolated workspace"}
               </p>
+              {isBuilding && (
+                <div className="flex flex-col items-center gap-2">
+                  <div
+                    className="rounded-full px-4 py-1 text-xs font-medium"
+                    style={{
+                      background: "rgba(255,255,255,0.05)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      color: "var(--text-secondary)",
+                    }}
+                  >
+                    {waitLabel}
+                  </div>
+                  {waitHint && (
+                    <p
+                      className="text-xs"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {waitHint}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

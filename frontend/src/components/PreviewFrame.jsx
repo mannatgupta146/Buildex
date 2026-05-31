@@ -1,9 +1,19 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
-export default function PreviewFrame({ previewUrl }) {
+export default function PreviewFrame({
+  previewUrl,
+  loading: externalLoading = false,
+  showIframe = true,
+}) {
   const iframeRef = useRef(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (externalLoading || !showIframe) {
+      setLoading(true)
+    }
+  }, [externalLoading, previewUrl, showIframe])
 
   const handleRefresh = () => {
     setLoading(true)
@@ -20,7 +30,6 @@ export default function PreviewFrame({ previewUrl }) {
           borderBottom: "1px solid var(--border)",
         }}
       >
-        {/* Traffic light dots */}
         <div className="flex items-center gap-1.5 mr-1">
           <div
             className="w-2.5 h-2.5 rounded-full"
@@ -36,7 +45,6 @@ export default function PreviewFrame({ previewUrl }) {
           />
         </div>
 
-        {/* URL bar */}
         <div
           className="flex-1 flex items-center px-3 rounded"
           style={{
@@ -63,7 +71,6 @@ export default function PreviewFrame({ previewUrl }) {
           </span>
         </div>
 
-        {/* Refresh */}
         <button
           onClick={handleRefresh}
           className="p-1 rounded transition-colors cursor-pointer"
@@ -87,7 +94,6 @@ export default function PreviewFrame({ previewUrl }) {
           </svg>
         </button>
 
-        {/* Open in new tab */}
         <a
           href={previewUrl}
           target="_blank"
@@ -115,17 +121,37 @@ export default function PreviewFrame({ previewUrl }) {
         </a>
       </div>
 
-      {/* iFrame */}
       <div className="flex-1 relative">
-        <iframe
-          key={refreshKey}
-          ref={iframeRef}
-          src={previewUrl}
-          className="w-full h-full border-0"
-          style={{ background: "#fff" }}
-          title="Sandbox Preview"
-          onLoad={() => setLoading(false)}
-        />
+        {showIframe && (
+          <iframe
+            key={refreshKey}
+            ref={iframeRef}
+            src={previewUrl}
+            className="w-full h-full border-0"
+            style={{ background: "#fff" }}
+            title="Sandbox Preview"
+            onLoad={() => {
+              setLoading(false)
+            }}
+          />
+        )}
+        {loading && (
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ background: "rgba(13,16,22,0.9)" }}
+          >
+            <div
+              className="px-5 py-3 rounded-xl text-sm"
+              style={{
+                background: "var(--bg-panel-strong)",
+                border: "1px solid var(--border)",
+                color: "var(--text-secondary)",
+              }}
+            >
+              Starting preview
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

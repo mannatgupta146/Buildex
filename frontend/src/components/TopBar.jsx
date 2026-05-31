@@ -4,6 +4,7 @@ export default function TopBar({ sandboxId, activeTab, onTabChange, status }) {
   const statusConfig = {
     ready: { color: "#10b981", label: "Ready", dot: true },
     loading: { color: "#f59e0b", label: "Working…", dot: false },
+    warning: { color: "#f59e0b", label: "Slow start", dot: true },
     error: { color: "#ef4444", label: "Error", dot: true },
   }
   const s = statusConfig[status] || statusConfig.ready
