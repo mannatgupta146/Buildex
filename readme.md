@@ -17,4 +17,3 @@ kubectl logs sandbox-pod-019e63e8-2031-7348-9c48-de558538594f -c agent-container
 
 kubectl logs sandbox-pod-019e63e8-2031-7348-9c48-de558538594f -c sandbox-container
 
-MONGODB_URI=mongodb+srv://mannatgupta146_db_user:mannat146@cluster0.tsu5yn3.mongodb.net/
