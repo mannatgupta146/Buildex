@@ -24,3 +24,19 @@ passport.use(new GoogleStrategy({
     // In a real application, you'd save the user info to your database here
     return done(null, { profile, accessToken });
 }));
+
+app.get("/status/healthz", (req, res) => {
+    res.status(200).json({
+        message: 'Auth service is healthy',
+        status: 'ok'
+    });
+});
+
+app.get("/status/readyz", (req, res) => {
+    res.status(200).json({
+        message: 'Auth service is ready',
+        status: 'ready'
+    });
+});
+
+export default app;
