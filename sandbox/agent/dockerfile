@@ -1,7 +1,6 @@
-FROM node:20-bullseye
+FROM node:20-bullseye AS build
 
-# Install build dependencies for native modules (node-pty)
-# 'make', 'g++', and 'python3' are required for node-gyp to compile C++ code
+# Build native modules once, then copy the compiled app into a slimmer runtime layer.
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
@@ -10,12 +9,23 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci --omit=dev
 
 COPY . .
+
+FROM node:20-bullseye-slim
+
+RUN apt-get update && apt-get install -y \
+    bash \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package*.json ./
+COPY --from=build /app .
 
 EXPOSE 3000
 

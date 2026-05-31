@@ -11,6 +11,7 @@ export default function App() {
   // Sandbox state
   const [sandbox, setSandbox] = useState(null) // { sandboxId, previewUrl, agentBase }
   const [status, setStatus] = useState("ready")
+  const [previewReady, setPreviewReady] = useState(false)
 
   // UI state
   const [activeTab, setActiveTab] = useState("preview") // 'preview' | 'files'
@@ -49,7 +50,8 @@ export default function App() {
       previewUrl: data.previewUrl,
       agentBase,
     })
-    setStatus("ready")
+    setStatus("loading")
+    setPreviewReady(false)
   }, [])
 
   const handleFilesChanged = useCallback(() => {
@@ -60,6 +62,66 @@ export default function App() {
     setActiveFile(path)
     setActiveTab("files")
   }, [])
+
+  useEffect(() => {
+    if (!sandbox?.sandboxId) {
+      return undefined
+    }
+
+    let cancelled = false
+    let timeoutId
+    const startedAt = Date.now()
+    const maxWaitMs = 120000
+
+    const pollPreviewReady = async () => {
+      try {
+        const response = await fetch(`/api/sandbox/${sandbox.sandboxId}/ready`)
+
+        if (!response.ok) {
+          throw new Error(`Server responded with ${response.status}`)
+        }
+
+        const data = await response.json()
+
+        if (cancelled) {
+          return
+        }
+
+        if (data.ready) {
+          setPreviewReady(true)
+          setStatus("ready")
+          return
+        }
+
+        if (Date.now() - startedAt >= maxWaitMs) {
+          setStatus("error")
+          return
+        }
+
+        timeoutId = setTimeout(pollPreviewReady, 2000)
+      } catch (error) {
+        if (cancelled) {
+          return
+        }
+
+        if (Date.now() - startedAt >= maxWaitMs) {
+          setStatus("error")
+          return
+        }
+
+        timeoutId = setTimeout(pollPreviewReady, 2000)
+      }
+    }
+
+    pollPreviewReady()
+
+    return () => {
+      cancelled = true
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+    }
+  }, [sandbox?.sandboxId])
 
   // Drag to resize terminal
   const handleDragStart = (e) => {
@@ -110,7 +172,40 @@ export default function App() {
         <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-hidden workspace-panel">
           <div className="min-h-0 flex-1 overflow-hidden">
             {activeTab === "preview" ? (
-              <PreviewFrame previewUrl={previewUrl} />
+              previewReady ? (
+                <PreviewFrame previewUrl={previewUrl} />
+              ) : (
+                <div
+                  className="flex h-full w-full items-center justify-center"
+                  style={{ background: "var(--bg-base)" }}
+                >
+                  <div
+                    className="flex flex-col items-center gap-3 rounded-2xl px-6 py-5"
+                    style={{
+                      background: "var(--bg-panel-strong)",
+                      border: "1px solid var(--border)",
+                    }}
+                  >
+                    <div
+                      className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin"
+                      style={{
+                        borderColor: "var(--accent)",
+                        borderTopColor: "transparent",
+                      }}
+                    />
+                    <div className="text-sm font-medium">
+                      Preparing preview…
+                    </div>
+                    <div
+                      className="text-xs text-center max-w-xs"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      Waiting for the sandbox pod to become ready before the
+                      preview frame loads.
+                    </div>
+                  </div>
+                </div>
+              )
             ) : (
               <FileViewer agentBase={agentBase} filePath={activeFile} />
             )}

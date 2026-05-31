@@ -1,6 +1,6 @@
 import express from "express"
 import morgan from "morgan"
-import { createPod, waitForPodReady } from "./kubernetes/pod.js"
+import { createPod, isPodReady, waitForPodReady } from "./kubernetes/pod.js"
 import { createService } from "./kubernetes/service.js"
 import { v7 as uuid } from "uuid"
 
@@ -42,11 +42,23 @@ app.get("/api/sandbox/health", (req, res) => {
   })
 })
 
+app.get("/api/sandbox/:sandboxId/ready", async (req, res) => {
+  const { sandboxId } = req.params
+  const ready = await isPodReady(sandboxId)
+
+  return res.status(200).json({
+    ready,
+    sandboxId,
+  })
+})
+
 app.post("/api/sandbox/start", async (req, res) => {
   const sandboxId = uuid()
 
-  await withRetries(() => createPod(sandboxId), "pod")
-  await withRetries(() => createService(sandboxId), "service")
+  await Promise.all([
+    withRetries(() => createPod(sandboxId), "pod"),
+    withRetries(() => createService(sandboxId), "service"),
+  ])
 
   void waitForPodReady(sandboxId).catch((error) => {
     console.error(`Sandbox ${sandboxId} did not become ready in time`, error)

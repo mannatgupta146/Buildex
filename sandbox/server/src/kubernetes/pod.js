@@ -134,7 +134,7 @@ EOF`,
           ports: [{ containerPort: 3000, name: "http" }],
           startupProbe: {
             httpGet: {
-              path: "/",
+              path: "/api/sandbox/health",
               port: 3000,
             },
             periodSeconds: 5,
@@ -143,7 +143,7 @@ EOF`,
           },
           readinessProbe: {
             httpGet: {
-              path: "/",
+              path: "/api/sandbox/health",
               port: 3000,
             },
             periodSeconds: 5,
@@ -195,4 +195,27 @@ export async function waitForPodReady(sandboxId, timeoutMs = 120000) {
   }
 
   throw new Error(`Timed out waiting for pod ${podName} to become Ready`)
+}
+
+export async function isPodReady(sandboxId) {
+  const podName = `sandbox-pod-${sandboxId}`
+
+  try {
+    const response = await k8sCoreV1Api.readNamespacedPod({
+      name: podName,
+      namespace: "default",
+    })
+
+    const readyCondition = response?.status?.conditions?.find(
+      (condition) => condition.type === "Ready",
+    )
+
+    return readyCondition?.status === "True"
+  } catch (error) {
+    if (error?.response?.statusCode === 404) {
+      return false
+    }
+
+    throw error
+  }
 }
