@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 export const connectDB = async () => {
-  const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/buildex-auth"
+  const uri = process.env.AUTH_MONGODB_URI || "mongodb://localhost:27017/buildex-auth"
   try {
     await mongoose.connect(uri, {
       useNewUrlParser: true,
