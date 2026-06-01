@@ -78,3 +78,5 @@ playwright-report/
 **/dist/
 **/build/
 **/.env
+
+commands.txt
