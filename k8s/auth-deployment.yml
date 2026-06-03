@@ -63,6 +63,11 @@ spec:
                 secretKeyRef:
                   name: jwt
                   key: JWT_SECRET
+            - name: GOOGLE_REFRESH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: google
+                  key: GOOGLE_REFRESH_TOKEN
           ports:
             - containerPort: 3000
               name: auth-port
