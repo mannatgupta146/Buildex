@@ -48,7 +48,7 @@ spec:
           env: 
             - name: REDIS_URL
               valueFrom: 
-                configMapKeyRef:
+                secretKeyRef:
                   name: database
                   key: REDIS_URL
           ports:

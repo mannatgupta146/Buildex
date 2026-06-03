@@ -16,6 +16,8 @@ subscriber.subscribe("__keyevent@0__:expired")
 
 subscriber.on("message", (channel, key) => {
     console.log(`Key expired: ${key}`);
+
+    
 })
 
 export default {subscriber};
