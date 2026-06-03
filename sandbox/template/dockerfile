@@ -2,12 +2,12 @@ FROM node:20-alpine
 
 WORKDIR /workspace
 
-COPY package*.json ./
+COPY package*.json /opt/template-deps/
 
-RUN npm install
+RUN mkdir -p /opt/template-deps && npm install --prefix /opt/template-deps
 
 COPY . .
 
 EXPOSE 5173
 
-CMD ["npm", "run", "dev"]
+CMD ["sh", "-c", "/opt/template-deps/node_modules/.bin/vite"]

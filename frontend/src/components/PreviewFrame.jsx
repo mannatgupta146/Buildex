@@ -8,16 +8,21 @@ export default function PreviewFrame({
   const iframeRef = useRef(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [retryCount, setRetryCount] = useState(0)
+  const maxRetries = 5
 
   useEffect(() => {
     if (externalLoading || !showIframe) {
       setLoading(true)
     }
+    // reset retries when preview url or visibility changes
+    setRetryCount(0)
   }, [externalLoading, previewUrl, showIframe])
 
   const handleRefresh = () => {
     setLoading(true)
     setRefreshKey((k) => k + 1)
+    setRetryCount(0)
   }
 
   return (
@@ -132,6 +137,20 @@ export default function PreviewFrame({
             title="Sandbox Preview"
             onLoad={() => {
               setLoading(false)
+              setRetryCount(0)
+            }}
+            onError={() => {
+              // trigger a reload with backoff
+              setLoading(true)
+              if (retryCount < maxRetries) {
+                setTimeout(
+                  () => {
+                    setRefreshKey((k) => k + 1)
+                    setRetryCount((c) => c + 1)
+                  },
+                  1000 * Math.min(2 ** retryCount, 30),
+                )
+              }
             }}
           />
         )}
@@ -148,7 +167,14 @@ export default function PreviewFrame({
                 color: "var(--text-secondary)",
               }}
             >
-              Starting preview
+              {retryCount > 0 ? (
+                <>
+                  Connection failed • Reconnecting (attempt {retryCount} of{" "}
+                  {maxRetries})
+                </>
+              ) : (
+                <>Starting preview</>
+              )}
             </div>
           </div>
         )}
