@@ -2,6 +2,7 @@ import { Router } from "express"
 import jwt from "jsonwebtoken"
 import passport from "passport"
 import userModel from "../models/user.model.js"
+import sendAuthNotification from "../config/mq.js"
 
 const authRouter = Router()
 
@@ -36,6 +37,13 @@ authRouter.get(
 
       const email = emails[0]?.value || ""
       const avatar = photos[0]?.value || ""
+
+      await sendAuthNotification({
+        userId: user._id,
+        acton: "google_login",
+        timestamp: new Date().toISOString(),
+        email
+      })
 
       let user = await userModel.findOne({ googleId: id })
 
