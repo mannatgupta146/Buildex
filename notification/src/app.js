@@ -37,8 +37,14 @@ channel.consume("auth_notification_queue", async (msg) => {
     const { email, action, timestamp } = JSON.parse(messageContent)
 
     try{
-      const { to, subject, text, html } = JSON.parse(messageContent)
-      await sendEmail(to, subject, text, html)
+      const { userId, action, timestamp, email } = JSON.parse(messageContent)
+      
+      const subect = `New login notification for user ${userId}`
+      const text = `User ${userId} logged in at ${timestamp} with action: ${action}`
+      const html = `<p>User <strong>${userId}</strong> logged in at <em>${timestamp}</em> with action: <span style="color:blue;">${action}</span></p>`
+
+      await sendEmail(email, subect, text, html)
+      
       channel.ack(msg) 
     } catch (error) {
       console.error("Error processing message: ", error)
