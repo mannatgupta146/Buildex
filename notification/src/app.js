@@ -16,6 +16,20 @@ app.get("/", (req, res) => {
   })
 })
 
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    message: "Notification service is healthy",
+    status: "ok",
+  })
+})
+
+app.get("/ready", (req, res) => {
+  res.status(200).json({
+    message: "Notification service is ready",
+    status: "ready",
+  })
+})
+
 channel.consume("auth_notification_queue", async (msg) => {
   if (msg !== null) {
     const messageContent = msg.content.toString()
