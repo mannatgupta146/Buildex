@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken"
 import passport from "passport"
 import userModel from "../models/user.model.js"
 import sendAuthNotification from "../config/mq.js"
+import jwt from "jsonwebtoken"
 
 const authRouter = Router()
 
