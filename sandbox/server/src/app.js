@@ -3,6 +3,9 @@ import morgan from "morgan"
 import http from "http"
 import cookieParser from "cookie-parser"
 import sandboxRouter from "./routes/sandbox.routes.js"
+import { connectDB } from "./config/db.js"
+
+connectDB()
 
 const app = express()
 

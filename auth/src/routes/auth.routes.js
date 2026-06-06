@@ -63,10 +63,7 @@ authRouter.get(
       })
 
       // set token in cookie
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-      })
+      res.cookie("token", token)
       res.redirect("http://localhost:5173") // redirect to frontend after successful login
     } catch (error) {
       console.error("Error during Google authentication callback:", error)
