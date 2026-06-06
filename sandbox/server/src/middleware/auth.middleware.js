@@ -1,0 +1,18 @@
+import { verifytoken} from "./utils.js"
+
+export function authMiddleware(req, res, next) {
+    const token = req.cookies.token || req.headers["authorization"]?.split(" ")[1]
+
+    if (!token) {
+        return res.status(401).json({ error: "Unauthorized: No token provided" })
+    }
+
+    const decoded = verifytoken(token)
+
+    if (!decoded) {
+        return res.status(401).json({ error: "Unauthorized: Invalid token" })
+    }
+
+    req.user = decoded
+    next()
+}
