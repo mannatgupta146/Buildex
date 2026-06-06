@@ -66,7 +66,7 @@ authRouter.get(
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
       })
-      res.redirect("/") // redirect to frontend after successful login
+      res.redirect("http://localhost:5173") // redirect to frontend after successful login
     } catch (error) {
       console.error("Error during Google authentication callback:", error)
       res.status(500).json({ error: "Authentication failed" })
