@@ -51,6 +51,16 @@ spec:
                 secretKeyRef:
                   name: database
                   key: REDIS_URL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt
+                  key: JWT_SECRET
+            - name: SANDBOX_MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: database
+                  key: SANDBOX
           ports:
             - containerPort: 3000
               name: main-sandbox
