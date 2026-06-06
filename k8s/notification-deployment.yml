@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name:  notification-deployment
@@ -65,4 +65,4 @@ spec:
               key: RABBITMQ_URL
         ports:
         - containerPort:  4000
-          name:  my-name
+          name:  notification-port
