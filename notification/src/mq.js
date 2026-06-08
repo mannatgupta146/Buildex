@@ -1,4 +1,4 @@
-import amqplib from 'amqplib/callback_api';
+import amqplib from 'amqplib';
 
 const QUEUE = 'auth_notification_queue';
 

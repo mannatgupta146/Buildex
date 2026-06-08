@@ -7,7 +7,7 @@ const transporter = nodemailer.createTransport({
         user: process.env.EMAIL_USER,
         clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        pass: process.env.GOOGLE_PASS
+        refreshToken: process.env.GOOGLE_REFRESH_TOKEN
     }
 })
 
@@ -19,7 +19,7 @@ transporter.verify((error, success) => {
     }
 })
 
-export const sendEmail = async (to, subject, text, ) => {
+export const sendEmail = async (to, subject, text, html) => {
     try {
         const info = await transporter.sendMail({
             from: `Your Name <${process.env.EMAIL_USER}>`,

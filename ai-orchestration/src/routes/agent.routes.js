@@ -15,7 +15,11 @@ agentRouter.post("/invoke", async (req, res) => {
     const writer = (text) => res.write(text);
 
     try {
-        const stream = await agent.stream(
+        const agentInstance = agent();
+        if (!agentInstance) {
+            throw new Error("AI Agent not initialized. Please configure MISTRALAI_API_KEY.");
+        }
+        const stream = await agentInstance.stream(
             { messages: [ { role: "user", content: message } ] },
             { context: { projectId, writer }, streamMode: "values" }
         );

@@ -1,4 +1,4 @@
-import { verifytoken} from "./utils.js"
+import { verifytoken} from "../utils.js"
 
 export function authMiddleware(req, res, next) {
     const token = req.cookies.token || req.headers["authorization"]?.split(" ")[1]

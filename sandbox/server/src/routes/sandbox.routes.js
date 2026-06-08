@@ -1,10 +1,10 @@
 import { Router } from "express"
-import { createPod } from "./kubernetes/pod.js"
-import { createService } from "./kubernetes/service.js"
+import { createPod } from "../kubernetes/pod.js"
+import { createService } from "../kubernetes/service.js"
 import { v7 as uuid } from "uuid"
-import {createSandboxKey} from "./config/redis.js"
-import { authMiddleware } from "./middleware/auth.js"
-import projectModel from "./models/project.model.js"
+import {createSandboxKey} from "../config/redis.js"
+import { authMiddleware } from "../middleware/auth.middleware.js"
+import projectModel from "../models/project.model.js"
 
 const sandboxRouter = Router()
 
