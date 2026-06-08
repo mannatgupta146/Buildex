@@ -65,4 +65,4 @@ spec:
               key: RABBITMQ_URL
         ports:
         - containerPort:  4000
-          name:  notification-port
+          name:  notify-port
