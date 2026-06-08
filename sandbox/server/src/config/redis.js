@@ -9,7 +9,7 @@ const subscriber = new Redis(process.env.REDIS_URL);
 export async function createSandboxKey(sandboxId) {
     await redis.set(`sandbox:${sandboxId}`, JSON.stringify({
         status: "active",
-    }), "EX", 60 * 2); // Set key to expire in 2 minutes
+    }), "EX", 60 * 2 * 10); // Set key to expire in 20 minutes
 }
 
 subscriber.config("SET", "notify-keyspace-events", "Ex");
